@@ -26,20 +26,19 @@ function filterOffersByRules({filteredOffers, currentOffer}) {
     };
 
     // select the closest currentOffer to save into filteredOffers if currentOffer have the same category with exist offer in filterOffers
-    const index = filteredOffers.findIndex(offerfiltered => (offerfiltered.category == currentOffer.category))
-    if (index >= 0) {
+    const indexOfExistOffer = filteredOffers.findIndex(offerfiltered => (offerfiltered.category == currentOffer.category))
+    if (indexOfExistOffer >= 0) {
         const distanceOfCurrentOffer = currentOffer.merchants[0].distance;
-        const distanceOfExistOffer = filteredOffers[index].merchants[0].distance;
-        if (distanceOfExistOffer > distanceOfCurrentOffer) filteredOffers[index] = currentOffer;
+        const distanceOfExistOffer = filteredOffers[indexOfExistOffer].merchants[0].distance;
+        if (distanceOfExistOffer > distanceOfCurrentOffer) filteredOffers[indexOfExistOffer] = currentOffer;
     } 
     else filteredOffers.push(currentOffer);
 }
 
-function handleOffersInExternalAPI() {
+function handleOffersInExternalAPI({checkInDate}) {
     const ADDITIONAL_VALID_DATES = 5;
     const readFile = require('./input.json');
     const offers = readFile.offers;
-    const checkInDate = prompt("Enter check-in date (YYYY-MM-DD): ");
 
     let validDateExpect = new Date(checkInDate);
     validDateExpect.setDate(validDateExpect.getDate() + ADDITIONAL_VALID_DATES); 
@@ -49,7 +48,7 @@ function handleOffersInExternalAPI() {
     offers.forEach(offer => {
         // if offer is not valid => go to the next offer
         if (!checkValidOffersByRules({validDateExpect: validDateExpect, currentOffer: offer})) return;
-        // filter this offer by rules and push into handledOffers 
+        // if offer is valid, filter this offer by rules and push into handledOffers 
         filterOffersByRules({filteredOffers: handledOffers, currentOffer: offer});
     })
 
@@ -68,4 +67,5 @@ function handleOffersInExternalAPI() {
 }
 
 // Run function
-handleOffersInExternalAPI();
+const checkInDate = prompt("Enter check-in date (YYYY-MM-DD): ");
+handleOffersInExternalAPI({checkInDate: checkInDate});
